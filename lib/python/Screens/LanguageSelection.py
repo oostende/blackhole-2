@@ -1,4 +1,3 @@
-#Embedded file name: /usr/lib/enigma2/python/Screens/LanguageSelection.py
 from Screen import Screen
 from Components.ActionMap import ActionMap
 from Components.Language import language
