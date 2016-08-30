@@ -18,7 +18,7 @@ install_PYTHON = \
 	MultiContent.py MediaPlayer.py TunerInfo.py VideoWindow.py ChoiceList.py \
 	Element.py Playlist.py ParentalControl.py \
 	Ipkg.py SelectionList.py Scanner.py SystemInfo.py PackageInfo.py \
-	Task.py Console.py ResourceManager.py TuneTest.py \
-	Keyboard.py Sensors.py FanControl.py HdmiCec.py RcModel.py \
-	Netlink.py InputHotplug.py Gauge.py \
-	opkg.py download.py language_cache.py languageone.py multInstaller.py
+	Task.py Console.py ResourceManager.py TuneTest.py language_cache.py  \
+	Keyboard.py Sensors.py FanControl.py HdmiCec.py RcModel.py languageone.py \
+	Netlink.py InputHotplug.py Gauge.py multInstaller.py download.py \
+	opkg.py
