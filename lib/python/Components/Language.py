@@ -1,4 +1,3 @@
-#Embedded file name: /usr/lib/enigma2/python/Components/Language.py
 import gettext
 import os
 from Tools.Directories import SCOPE_LANGUAGE, resolveFilename, fileExists
