@@ -1,4 +1,3 @@
-#Embedded file name: /usr/lib/enigma2/python/Components/language_cache.py
 LANG_TEXT = {'en_EN': {'tr_TR': 'Turkish',
            'fr_FR': 'French',
            'fi_FI': 'Finnish',
