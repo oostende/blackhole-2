@@ -5,7 +5,7 @@ from enigma import eConsoleAppContainer, getDesktop
 from Components.ProgressBar import ProgressBar
 from Components.ScrollLabel import ScrollLabel
 from Components.config import config
-from Tools.Downloader import downloadWithProgress
+from Downloader import downloadWithProgress
 from os import system as os_system, path as os_path, remove as os_remove, popen as os_popen
 opkg_busy_filename = '/tmp/.opkg_busy'
 desktopSize = getDesktop(0).size()
@@ -20,7 +20,7 @@ class TSGetMultiipk(Screen):
 
     def __init__(self, session, installNameList = [], removeNameList = [], installList = [], removeList = [], closetext = '', restart = False, autoclose = False):
         Screen.__init__(self, session)
-        self.session=session
+        self.session = session
         self.installNameList = installNameList
         self.removeNameList = removeNameList
         self.installList = installList
@@ -97,11 +97,11 @@ class TSGetMultiipk(Screen):
         print '[TS multInstaller] Download succeeded. '
         self['status'].setText('Installing to root...')
         self.setTitle(_('Installing') + '...')
-
-        #self.session.openWithCallback(self.callbackLog, TSConsole, cmd, title)
         self.installpackage(self.target)
+
     def exit(self):
         self.close(False)
+
     def responseFailed(self, failure_instance = None, error_message = ''):
         print '[TS multInstaller] Download failed --> %s' % error_message
         self.error_message = error_message
@@ -172,13 +172,7 @@ class TSGetMultiipk(Screen):
 
     def deflateIpk(self, filename):
         cmd = 'opkg install %s' % self.target
-        #self.downloader = None
-
-        
-        cmd='opkg install -force-overwrite '+self.webfile
-        
-        #self.session.openWithCallback(self.exit,TSConsole, cmd, "Installing...")
-        
+        #cmd = 'opkg install -force-overwrite ' + self.webfile
         print '[multiInstaller] defalteIpk --> cmd = %s' % cmd
         self.container.appClosed.append(self.deflateOnClosed)
         self.container.dataAvail.append(self.cmdData)
@@ -274,8 +268,7 @@ class TSGetMultiipk(Screen):
             self['status'].setText(_('Connecting to server....'))
             self.target = '/tmp/' + self.installNameList[self.currentIndex] + self.fileextension
             print '[TS multInstaller] Downloading %s to %s' % (self.installList[self.currentIndex], self.target)
-            self.webfile=self.installList[self.currentIndex].strip()
-
+            self.webfile = self.installList[self.currentIndex].strip()
             self.downloader = downloadWithProgress(self.webfile, self.target)
             self.downloader.addProgress(self.progress)
             self.downloader.start().addCallback(self.responseCompleted).addErrback(self.responseFailed)
