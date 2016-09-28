@@ -50,12 +50,17 @@ void eDVBServicePMTHandler::channelStateChanged(iDVBChannel *channel)
 
 	if ((m_last_channel_state != iDVBChannel::state_ok)
 		&& (state == iDVBChannel::state_ok))
- 	{
- 		if (!m_demux && m_channel)
-			if (m_channel->getDemux(m_demux, (!m_use_decode_demux) ? 0 : iDVBChannel::capDecode))
+	{
+		if (!m_demux && m_channel)
+		{
+			if (m_pvr_demux_tmp)
+			{
+				m_demux = m_pvr_demux_tmp;
+				m_pvr_demux_tmp = NULL;
+			}
+			else if (m_channel->getDemux(m_demux, (!m_use_decode_demux) ? 0 : iDVBChannel::capDecode))
 				eDebug("[eDVBServicePMTHandler] Allocating %s-decoding a demux for now tuned-in channel failed.", m_use_decode_demux ? "" : "non-");
-
-		serviceEvent(eventTuned);
+		}
 
 		if (m_demux)
 		{
@@ -868,7 +873,9 @@ int eDVBServicePMTHandler::tuneExt(eServiceReferenceDVB &ref, ePtr<iTsSource> &s
 		{
 			m_pvr_channel->setCueSheet(cue);
 
-			if (source)
+			if (m_pvr_channel->getDemux(m_pvr_demux_tmp, (!m_use_decode_demux) ? 0 : iDVBChannel::capDecode))
+				eDebug("[eDVBServicePMTHandler] Allocating %s-decoding a demux for PVR channel failed.", m_use_decode_demux ? "" : "non-");
+			else if (source)
 				m_pvr_channel->playSource(source, streaminfo_file);
 			else
 				m_pvr_channel->playFile(ref.path.c_str());

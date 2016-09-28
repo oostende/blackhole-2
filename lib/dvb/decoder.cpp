@@ -15,6 +15,13 @@
 #include <sys/stat.h>
 #include <errno.h>
 
+#ifndef VIDEO_SOURCE_HDMI
+#define VIDEO_SOURCE_HDMI 2
+#endif
+#ifndef AUDIO_SOURCE_HDMI
+#define AUDIO_SOURCE_HDMI 2
+#endif
+
 DEFINE_REF(eDVBAudio);
 
 eDVBAudio::eDVBAudio(eDVBDemux *demux, int dev)
@@ -36,6 +43,12 @@ eDVBAudio::eDVBAudio(eDVBDemux *demux, int dev)
 	{
 		m_fd_demux = -1;
 	}
+#ifndef DREAMBOX
+	if (m_fd >= 0)
+	{
+		::ioctl(m_fd, AUDIO_SELECT_SOURCE, demux ? AUDIO_SOURCE_DEMUX : AUDIO_SOURCE_HDMI);
+	}
+#endif
 }
 
 int eDVBAudio::startPid(int pid, int type)
@@ -257,7 +270,12 @@ eDVBVideo::eDVBVideo(eDVBDemux *demux, int dev)
 	{
 		m_fd_demux = -1;
 	}
-
+#ifndef DREAMBOX
+	if (m_fd >= 0)
+	{
+		::ioctl(m_fd, VIDEO_SELECT_SOURCE, demux ? VIDEO_SOURCE_DEMUX : VIDEO_SOURCE_HDMI);
+	}
+#endif
 	if (m_close_invalidates_attributes < 0)
 	{
 		/*
@@ -1186,7 +1204,7 @@ RESULT eTSMPEGDecoder::showSinglePic(const char *filename)
 			struct stat s;
 			fstat(f, &s);
 			if (m_video_clip_fd == -1)
-				m_video_clip_fd = open("/dev/dvb/adapter0/video0", O_WRONLY|O_NONBLOCK);
+				m_video_clip_fd = open("/dev/dvb/adapter0/video0", O_WRONLY);
 			if (m_video_clip_fd >= 0)
 			{
 				bool seq_end_avail = false;
