@@ -50,6 +50,8 @@ void eDVBServicePMTHandler::channelStateChanged(iDVBChannel *channel)
 
 	if ((m_last_channel_state != iDVBChannel::state_ok)
 		&& (state == iDVBChannel::state_ok))
+ 	{
+ 		if (!m_demux && m_channel)
 			if (m_channel->getDemux(m_demux, (!m_use_decode_demux) ? 0 : iDVBChannel::capDecode))
 				eDebug("[eDVBServicePMTHandler] Allocating %s-decoding a demux for now tuned-in channel failed.", m_use_decode_demux ? "" : "non-");
 
