@@ -2633,7 +2633,11 @@ bool eDVBFrontend::setSlotInfo(int id, const char *descr, bool enabled, bool isD
 
 bool eDVBFrontend::is_multistream()
 {
+#if defined FE_CAN_MULTISTREAM
 	return fe_info.caps & FE_CAN_MULTISTREAM;
+#else
+	return false;
+#endif
 }
 
 std::string eDVBFrontend::getCapabilities()
