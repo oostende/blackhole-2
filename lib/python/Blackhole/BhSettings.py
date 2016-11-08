@@ -1113,6 +1113,7 @@ class BhSpeedUp(Screen, ConfigListScreen):
          ['BhFullBackup', 'bhfullbackup'],
          ['BhPersonalBackup', 'bhpersonalbackup'],
          ['BhEpgBackup', 'bhepgbackup'],
+         ['dflash BlackHole', 'enigma2-plugin-extensions-dflash'],
          ['AutoResolution', 'enigma2-plugin-systemplugins-autoresolution'],
          ['CommonInterfaceAssignment', 'enigma2-plugin-systemplugins-commoninterfaceassignment'],
          ['AddStreamUrl', 'enigma2-plugin-extensions-addstreamurl'],
