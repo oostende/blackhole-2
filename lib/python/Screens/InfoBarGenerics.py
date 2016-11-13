@@ -594,7 +594,7 @@ class NumberZap(Screen):
 
 
 class InfoBarNumberZap():
-
+    """ Handles an initial number for NumberZapping """
     def __init__(self):
         self['NumberActions'] = NumberActionMap(['NumberActions'], {'1': self.keyNumberGlobal,
          '2': self.keyNumberGlobal,
@@ -611,13 +611,12 @@ class InfoBarNumberZap():
         if number == 0:
             if isinstance(self, InfoBarPiP) and self.pipHandles0Action():
                 self.pipDoHandle0Action()
-            elif len(self.servicelist.history) > 1:
-                self.checkTimeshiftRunning(self.recallPrevService)
-            elif config.misc.delitepanicb.value:
+            else:
+             if config.misc.delitepanicb.value:
                 self.servicelist.history = []
                 self.servicelist.history_pos = 0
                 self.zapToNumber(1)
-            else:
+             else:
                 self.servicelist.recallPrevService()
         else:
             if self.has_key('TimeshiftActions') and self.timeshiftEnabled():
