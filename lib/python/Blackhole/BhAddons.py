@@ -1156,7 +1156,7 @@ class Bh_Feed_Upgrade(Screen):
         self.installedver = ''
         self.list = []
         ret = system('opkg update')
-        ret = system('cat /var/lib/opkg/blackhole-Upgrade > /tmp/cpanel.tmp')
+        ret = system('cat /var/volatile/tmp/blackhole-Upgrade > /tmp/cpanel.tmp')
         packname = ''
         packver = ''
         step = 0
