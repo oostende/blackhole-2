@@ -1130,6 +1130,3 @@ class DeliteDownEpgNow(Screen):
         if self.oldchanref:
             self.session.nav.playService(self.oldchanref)
         del self.activityTimer
-# okay decompyling BhEpgPanel.pyo 
-# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
-# 2014.06.06 12:34:24 GMT Daylight Time
