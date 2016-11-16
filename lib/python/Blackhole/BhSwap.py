@@ -145,6 +145,8 @@ class DeliteSwap(Screen):
                     mysd = '/mnt/card/'
                 elif line.find('/hdd') != -1:
                     myhdd = '/mnt/hdd/'
+                elif line.find('/universe') != -1:
+                    myhdd = '/universe/'
 
             f.close()
         if mycf:
