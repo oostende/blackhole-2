@@ -335,12 +335,13 @@ class DeliteEpgGlobalSetup(Screen, ConfigListScreen):
         my_tmp_path = config.misc.epgcache_filename.value
         self.myepg_path = NoSave(ConfigSelection(default='/hdd/epg.dat', choices=[(my_tmp_path, my_tmp_path),
          ('/hdd/epg.dat', '/hdd/epg.dat'),
-         ('/media/ba/epg.dat', '/media/ba/epg.dat'),
-         ('/media/cf/epg.dat', '/media/cf/epg.dat'),
          ('/media/usb/epg.dat', '/media/usb/epg.dat'),
+         ('/media/cf/epg.dat', '/media/cf/epg.dat'),
          ('/media/card/epg.dat', '/media/card/epg.dat'),
          ('/media/net/epg.dat', '/media/net/epg.dat'),
-         ('/media/meoboot/epg.dat', '/media/meoboot/epg.dat')]))
+         ('/media/ba/epg.dat', '/media/ba/epg.dat'),
+         ('/media/meoboot/epg.dat', '/media/meoboot/epg.dat'),
+         ('/universe/epg.dat', '/universe/epg.dat')]))
         if fileExists('/etc/skyitepglock'):
             self.deliteepgdisabled.value = False
         else:
