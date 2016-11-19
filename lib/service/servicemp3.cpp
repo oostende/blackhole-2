@@ -1814,7 +1814,7 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 					if(!m_cuesheet_loaded) /* cuesheet CVR */
 						loadCuesheet();
 					updateEpgCacheNowNext();
-					
+
 				}	break;
 				case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
 				{
@@ -2324,10 +2324,10 @@ void eServiceMP3::HandleTocEntry(GstMessage *msg)
 					}
 				}
 				if (y > 0)
- 				{
- 					m_cuesheet_changed = 1;
- 					m_event((iPlayableService*)this, evCuesheetChanged);
- 				}
+				{
+					m_cuesheet_changed = 1;
+					m_event((iPlayableService*)this, evCuesheetChanged);
+				}
 			}
 		}
 		eDebug("[eServiceMP3] TOC entry from source %s processed", GST_MESSAGE_SRC_NAME(msg));
@@ -2642,6 +2642,10 @@ void eServiceMP3::pullSubtitle(GstBuffer *buffer)
 #else
 				std::string line((const char*)map.data, len);
 #endif
+				// some media muxers do add an extra new line at the end off a muxed/reencoded srt to ssa codec
+				if (!line.empty() && line[line.length()-1] == '\n')
+					line.erase(line.length()-1);
+
 				eLog(6, "[eServiceMP3] got new text subtitle @ buf_pos = %lld ns (in pts=%lld), dur=%lld: '%s' ", buf_pos, buf_pos/11111, duration_ns, line.c_str());
 
 				uint32_t start_ms = ((buf_pos / 1000000ULL) * convert_fps) + (delay / 90);
@@ -2817,42 +2821,42 @@ RESULT eServiceMP3::getCachedSubtitle(struct SubtitleTrack &track)
 		return -1;
 
 	if (m_cachedSubtitleStream == -2 && m_subtitleStreams_size)
- 	{
- 		m_cachedSubtitleStream = 0;
- 		int autosub_level = 5;
- 		std::string configvalue;
- 		std::vector<std::string> autosub_languages;
- 		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect1");
- 		if (configvalue != "" && configvalue != "None")
- 			autosub_languages.push_back(configvalue);
- 		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect2");
- 		if (configvalue != "" && configvalue != "None")
- 			autosub_languages.push_back(configvalue);
- 		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect3");
- 		if (configvalue != "" && configvalue != "None")
- 			autosub_languages.push_back(configvalue);
- 		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect4");
- 		if (configvalue != "" && configvalue != "None")
- 			autosub_languages.push_back(configvalue);
- 		for (int i = 0; i < m_subtitleStreams_size; i++)
- 		{
- 			if (!m_subtitleStreams[i].language_code.empty())
- 			{
- 				int x = 1;
- 				for (std::vector<std::string>::iterator it2 = autosub_languages.begin(); x < autosub_level && it2 != autosub_languages.end(); x++, it2++)
- 				{
- 					if ((*it2).find(m_subtitleStreams[i].language_code) != std::string::npos)
- 					{
- 						autosub_level = x;
- 						m_cachedSubtitleStream = i;
- 						break;
- 					}
- 				}
- 			}
- 		}
- 	}
- 
- 	if (m_cachedSubtitleStream >= 0 && m_cachedSubtitleStream < m_subtitleStreams_size)
+	{
+		m_cachedSubtitleStream = 0;
+		int autosub_level = 5;
+		std::string configvalue;
+		std::vector<std::string> autosub_languages;
+		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect1");
+		if (configvalue != "" && configvalue != "None")
+			autosub_languages.push_back(configvalue);
+		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect2");
+		if (configvalue != "" && configvalue != "None")
+			autosub_languages.push_back(configvalue);
+		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect3");
+		if (configvalue != "" && configvalue != "None")
+			autosub_languages.push_back(configvalue);
+		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect4");
+		if (configvalue != "" && configvalue != "None")
+			autosub_languages.push_back(configvalue);
+		for (int i = 0; i < m_subtitleStreams_size; i++)
+		{
+			if (!m_subtitleStreams[i].language_code.empty())
+			{
+				int x = 1;
+				for (std::vector<std::string>::iterator it2 = autosub_languages.begin(); x < autosub_level && it2 != autosub_languages.end(); x++, it2++)
+				{
+					if ((*it2).find(m_subtitleStreams[i].language_code) != std::string::npos)
+					{
+						autosub_level = x;
+						m_cachedSubtitleStream = i;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	if (m_cachedSubtitleStream >= 0 && m_cachedSubtitleStream < m_subtitleStreams_size)
 	{
 		track.type = 2;
 		track.pid = m_cachedSubtitleStream;

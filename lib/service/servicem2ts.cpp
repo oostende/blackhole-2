@@ -11,7 +11,6 @@ extern "C" {
 }
 #endif
 
-
 DEFINE_REF(eServiceFactoryM2TS)
 
 class eM2TSFile: public iTsSource
@@ -181,38 +180,38 @@ eM2TSFile::eM2TSFile(const char *filename):
 	m_length(0)
 {
 #ifdef HAVE_LIBUDFREAD
- 	m_udf = NULL;
+	m_udf = NULL;
 	m_udf_file = NULL;
- 	std::string iso_file = filename;
- 	size_t pos = iso_file.find(".iso/BDMV");
- 	if (pos != std::string::npos)
- 	{
- 		eDebug("[eM2TSFile] try open as iso:%s", filename);
- 		std::string file_path = iso_file.substr(pos + 4);
- 		iso_file = iso_file.substr(0, pos + 4);
- 		m_udf = udfread_init();
- 		if (m_udf)
- 		{
- 			if (udfread_open(m_udf, iso_file.c_str()) < 0)
- 				eDebug("[eM2TSFile] udfread_open(%s) failed!", iso_file.c_str());
- 			else
- 			{
- 				m_udf_file = udfread_file_open(m_udf, file_path.c_str());
- 				if (!m_udf_file)
- 				{
- 					eDebug("[eM2TSFile] udfread_file_open(%s) failed!", file_path.c_str());
- 					udfread_close(m_udf);
- 					m_udf = NULL;
- 				}
- 				else
- 					m_fd = 0;
- 			}
- 		}
- 	}
+	std::string iso_file = filename;
+	size_t pos = iso_file.find(".iso/BDMV");
+	if (pos != std::string::npos)
+	{
+		eDebug("[eM2TSFile] try open as iso:%s", filename);
+		std::string file_path = iso_file.substr(pos + 4);
+		iso_file = iso_file.substr(0, pos + 4);
+		m_udf = udfread_init();
+		if (m_udf)
+		{
+			if (udfread_open(m_udf, iso_file.c_str()) < 0)
+				eDebug("[eM2TSFile] udfread_open(%s) failed!", iso_file.c_str());
+			else
+			{
+				m_udf_file = udfread_file_open(m_udf, file_path.c_str());
+				if (!m_udf_file)
+				{
+					eDebug("[eM2TSFile] udfread_file_open(%s) failed!", file_path.c_str());
+					udfread_close(m_udf);
+					m_udf = NULL;
+				}
+				else
+					m_fd = 0;
+			}
+		}
+	}
 #endif
- 	if (m_fd == -1)
- 		m_fd = ::open(filename, O_RDONLY | O_LARGEFILE | O_CLOEXEC);
- 
+	if (m_fd == -1)
+		m_fd = ::open(filename, O_RDONLY | O_LARGEFILE | O_CLOEXEC);
+
 	if (m_fd != -1)
 		m_current_offset = m_length = lseek_internal(0, SEEK_END);
 }
@@ -271,6 +270,7 @@ sync:
 			ret = udfread_file_read(m_udf_file, tmp, 192);
 		else
 #endif
+			ret = ::read(m_fd, tmp, 192);
 		if (ret < 0 || ret < 192)
 			return rd ? rd : ret;
 
@@ -282,7 +282,7 @@ sync:
 			}
 			else {
 				int x=0;
-ifdef HAVE_LIBUDFREAD
+#ifdef HAVE_LIBUDFREAD
 				if (m_udf_file)
 					ret = udfread_file_read(m_udf_file, tmp+192, 384);
 				else
