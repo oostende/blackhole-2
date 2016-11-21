@@ -130,6 +130,7 @@ int eDVBServiceStream::doRecord()
 	}
 
 	if (!m_tuned)
+	{
 		eDebug("[eDVBServiceStream] try it again when we are tuned in");
 		return 0; /* try it again when we are tuned in */
 	}
