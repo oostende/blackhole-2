@@ -171,24 +171,32 @@ int eDVBServiceStream::doRecord()
 		std::set<int> pids_to_record;
 		
 		eServiceReferenceDVB ref = m_ref.getParentServiceReference();
- 		ePtr<eDVBService> service;
+ 		ePtr<eDVBResourceManager> res_mgr;
  
  		if (!ref.valid())
  			ref = m_ref;
  
- 		if(!eDVBDB::getInstance()->getService(ref, service))
+ 		if (!eDVBResourceManager::getInstance(res_mgr))
  		{
- 			// cached pids
- 			for (int x = 0; x < eDVBService::cacheMax; ++x)
+ 			ePtr<iDVBChannelList> db;
+ 		        if (!res_mgr->getChannelList(db))
  			{
- 				int entry = service->getCacheEntry((eDVBService::cacheID)x);
- 				if (entry != -1)
+ 				ePtr<eDVBService> service;
+  		          	if (!db->getService(ref, service) && !service->usePMT())
  				{
- 					if (eDVBService::cSUBTITLE == (eDVBService::cacheID)x)
+ 					// cached pids
+ 			        	for (int x = 0; x < eDVBService::cacheMax; ++x)
  					{
  						entry = (entry&0xFFFF0000)>>16;
  					}
- 					pids_to_record.insert(entry);
+ 					int entry = service->getCacheEntry((eDVBService::cacheID)x);
+ 					if (entry != -1)
+ 					{
+ 						if (eDVBService::cSUBTITLE == (eDVBService::cacheID)x)
+ 						{
+ 							entry = (entry&0xFFFF0000)>>16;
+ 						}
+ 					}
  				}
  			}
  		}
