@@ -236,7 +236,7 @@ eM2TSFile::~eM2TSFile()
 off_t eM2TSFile::lseek_internal(off_t offset, int whence)
 {
 	off_t ret;
-ifdef HAVE_LIBUDFREAD
+#ifdef HAVE_LIBUDFREAD
  	if (m_udf_file)
  		ret = udfread_file_seek(m_udf_file, offset, whence);
  	else
