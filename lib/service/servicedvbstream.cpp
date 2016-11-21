@@ -1,6 +1,5 @@
 #include <lib/service/servicedvbstream.h>
 #include <lib/base/eerror.h>
-#include <lib/dvb/db.h>
 #include <lib/dvb/epgcache.h>
 #include <lib/dvb/metaparser.h>
 #include <lib/base/nconfig.h>
@@ -170,37 +169,6 @@ int eDVBServiceStream::doRecord()
 	{
 		std::set<int> pids_to_record;
 		
-		eServiceReferenceDVB ref = m_ref.getParentServiceReference();
- 		ePtr<eDVBResourceManager> res_mgr;
- 
- 		if (!ref.valid())
- 			ref = m_ref;
- 
- 		if (!eDVBResourceManager::getInstance(res_mgr))
- 		{
- 			ePtr<iDVBChannelList> db;
- 		        if (!res_mgr->getChannelList(db))
- 			{
- 				ePtr<eDVBService> service;
-  		          	if (!db->getService(ref, service) && !service->usePMT())
- 				{
- 					// cached pids
- 			        	for (int x = 0; x < eDVBService::cacheMax; ++x)
- 					{
- 						entry = (entry&0xFFFF0000)>>16;
- 					}
- 					int entry = service->getCacheEntry((eDVBService::cacheID)x);
- 					if (entry != -1)
- 					{
- 						if (eDVBService::cSUBTITLE == (eDVBService::cacheID)x)
- 						{
- 							entry = (entry&0xFFFF0000)>>16;
- 						}
- 					}
- 				}
- 			}
- 		}
- 
 		pids_to_record.insert(0); // PAT
 
 		if (program.pmtPid != -1)
