@@ -420,7 +420,7 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	m_use_chapter_entries = false; /* TOC chapter support CVR */
 	m_last_seek_pos = 0; /* CVR last seek position */
 #endif
-	m_useragent = "Enigma2 HbbTV/1.1.1 (+PVR+RTSP+DL;openATV;;;)";
+	m_useragent = "Enigma2 HbbTV/1.1.1 (+PVR+RTSP+DL;OpenPLi;;;)";
 	m_extra_headers = "";
 	m_download_buffer_path = "";
 	m_prev_decoder_time = -1;
@@ -3053,19 +3053,11 @@ void eServiceMP3::saveCuesheet()
 
 		for (std::multiset<cueEntry>::iterator i(m_cue_entries.begin()); i != m_cue_entries.end(); ++i)
 		{
-			if (where == i->where && what == i->what)
-				/* ignore double entries */
-				continue;
-			else
-			{			
-				where = htobe64(i->where);
-				what = htonl(i->what);
-				fwrite(&where, sizeof(where), 1, f);
-				fwrite(&what, sizeof(what), 1, f);
-				/* temorary save for comparing */
-				where = i->where;
-				what = i->what;
-			}
+			where = htobe64(i->where);
+			what = htonl(i->what);
+			fwrite(&where, sizeof(where), 1, f);
+			fwrite(&what, sizeof(what), 1, f);
+
 		}
 		fclose(f);
 	}
