@@ -118,7 +118,7 @@ typedef struct _GstElement GstElement;
 
 typedef enum { atUnknown, atMPEG, atMP3, atAC3, atDTS, atAAC, atPCM, atOGG, atFLAC, atWMA } audiotype_t;
 typedef enum { stUnknown, stPlainText, stSSA, stASS, stSRT, stVOB, stPGS } subtype_t;
-typedef enum { ctNone, ctMPEGTS, ctMPEGPS, ctMKV, ctAVI, ctMP4, ctVCD, ctCDA, ctASF, ctOGG } containertype_t;
+typedef enum { ctNone, ctMPEGTS, ctMPEGPS, ctMKV, ctAVI, ctMP4, ctVCD, ctCDA, ctASF, ctOGG, ctWEBM } containertype_t;
 
 class eServiceMP3: public iPlayableService, public iPauseableService,
 	public iServiceInformation, public iSeekableService, public iAudioTrackSelection, public iAudioChannelSelection,
@@ -208,10 +208,6 @@ public:
 	void setAC3Delay(int);
 	void setPCMDelay(int);
 
-#if HAVE_AMLOGIC
-	void AmlSwitchAudio(int index);
-	unsigned int get_pts_pcrscr(void);
-#endif
 	struct audioStream
 	{
 		GstPad* pad;
@@ -302,9 +298,9 @@ private:
 	int m_buffer_size;
 	int m_ignore_buffering_messages;
 	bool m_is_live;
+	bool m_subtitles_paused;
 	bool m_use_prefillbuffer;
 	bool m_paused;
-	bool m_seek_paused;
 	/* cuesheet load check */
 	bool m_cuesheet_loaded;
 	/* servicemMP3 chapter TOC support CVR */
