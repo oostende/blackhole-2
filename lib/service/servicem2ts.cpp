@@ -208,7 +208,7 @@ sync:
 	while (rd < count) {
 		size_t ret;
 		ret = ::read(m_fd, tmp, 192);
- 		if (ret < 0 || ret < 192)
+		if (ret < 0 || ret < 192)
 			return rd ? rd : ret;
 
 		if (tmp[4] != 0x47)
@@ -220,6 +220,7 @@ sync:
 			else {
 				int x=0;
 				ret = ::read(m_fd, tmp+192, 384);
+
 #if 0
 				eDebugNoNewLineStart("[eM2TSFile] m2ts out of sync at pos %lld, real %lld:", offset + m_sync_offset, m_current_offset);
 				for (; x < 192; ++x)
