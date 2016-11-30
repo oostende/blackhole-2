@@ -2088,10 +2088,10 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 
 			m_event((iPlayableService*)this, evUpdatedInfo);
 			if (m_seek_paused)
-			{
-				m_seek_paused = false;
-				gst_element_set_state(m_gst_playbin, GST_STATE_PAUSED);
-			}
+ 			{
+ 				m_seek_paused = false;
+ 				gst_element_set_state(m_gst_playbin, GST_STATE_PAUSED);
+ 			}
 
 			if ( m_errorInfo.missing_codec != "" )
 			{
