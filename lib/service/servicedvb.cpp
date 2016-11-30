@@ -992,12 +992,25 @@ RESULT eServiceFactoryDVB::lookupService(ePtr<eDVBService> &service, const eServ
 		// if (ref.... == -1) .. return "... bouquets ...";
 		// could be also done in another serviceFactory (with seperate ID) to seperate actual services and lists
 			// TODO: cache
+		ePtr<iDVBChannelList> db;
+		ePtr<eDVBResourceManager> res;
+
+		int err;
+		if ((err = eDVBResourceManager::getInstance(res)) != 0)
+		{
+			eDebug("[eServiceFactoryDVB] no resource manager");
+			return err;
+		}
+		if ((err = res->getChannelList(db)) != 0)
+		{
+			eDebug("[eServiceFactoryDVB] no channel list");
+			return err;
+		}
 
 		/* we are sure to have a ..DVB reference as the info() call was forwarded here according to it's ID. */
-		int err;
- 		if ((err = eDVBDB::getInstance()->getService((eServiceReferenceDVB&)ref, service)) != 0)
+		if ((err = db->getService((eServiceReferenceDVB&)ref, service)) != 0)
 		{
-			eLog(6, "[eServiceFactoryDVB] lookupService getService failed!");
+//			eDebug("[eServiceFactoryDVB] getService failed!");
 			return err;
 		}
 	}
@@ -1442,7 +1455,6 @@ RESULT eDVBServicePlay::stop()
 RESULT eDVBServicePlay::setTarget(int target)
 {
 	m_decoder_index = target;
-	m_noaudio = noaudio;
 	return 0;
 }
 
@@ -2830,34 +2842,39 @@ void eDVBServicePlay::updateDecoder(bool sendSeekableStateChanged)
 	if (m_decoder)
 	{
 		bool wasSeekable = m_decoder->getVideoProgressive() != -1;
-		if (!m_noaudio)
+		if (m_dvb_service)
 		{
-			if (m_dvb_service)
- 		{
- 			achannel = m_dvb_service->getCacheEntry(eDVBService::cACHANNEL);
- 			ac3_delay = m_dvb_service->getCacheEntry(eDVBService::cAC3DELAY);
- 			pcm_delay = m_dvb_service->getCacheEntry(eDVBService::cPCMDELAY);
- 		}
- 		else // subservice
- 		{
- 			ePtr<eDVBService> origService;
-  				if (!eDVBDB::getInstance()->getService(parent, origService))
+			achannel = m_dvb_service->getCacheEntry(eDVBService::cACHANNEL);
+			ac3_delay = m_dvb_service->getCacheEntry(eDVBService::cAC3DELAY);
+			pcm_delay = m_dvb_service->getCacheEntry(eDVBService::cPCMDELAY);
+		}
+		else // subservice
+		{
+			eServiceReferenceDVB ref;
+			m_service_handler.getServiceReference(ref);
+			eServiceReferenceDVB parent = ref.getParentServiceReference();
+			if (!parent)
+				parent = ref;
+			if (parent)
 			{
-				eServiceReferenceDVB ref;
- 				m_service_handler.getServiceReference(ref);
- 				eServiceReferenceDVB parent = ref.getParentServiceReference();
- 				if (!parent)
- 					parent = ref;
- 				if (parent)
+				ePtr<eDVBResourceManager> res_mgr;
+				if (!eDVBResourceManager::getInstance(res_mgr))
 				{
-					ac3_delay = origService->getCacheEntry(eDVBService::cAC3DELAY);
-  					pcm_delay = origService->getCacheEntry(eDVBService::cPCMDELAY);
+					ePtr<iDVBChannelList> db;
+					if (!res_mgr->getChannelList(db))
+					{
+						ePtr<eDVBService> origService;
+						if (!db->getService(parent, origService))
+						{
+		 					ac3_delay = origService->getCacheEntry(eDVBService::cAC3DELAY);
+							pcm_delay = origService->getCacheEntry(eDVBService::cPCMDELAY);
+						}
+					}
 				}
 			}
-
 		}
-  
- 		setAC3Delay(ac3_delay == -1 ? 0 : ac3_delay);
+
+		setAC3Delay(ac3_delay == -1 ? 0 : ac3_delay);
 		setPCMDelay(pcm_delay == -1 ? 0 : pcm_delay);
 
 		m_decoder->setVideoPID(vpid, vpidtype);
@@ -2868,11 +2885,12 @@ void eDVBServicePlay::updateDecoder(bool sendSeekableStateChanged)
 #if HAVE_AMLOGIC
 		m_decoder->setSyncPCR(pcrpid);
 #else
- 		if (!(m_is_pvr || m_is_stream || m_timeshift_active))
+		if (!(m_is_pvr || m_is_stream || m_timeshift_active))
 			m_decoder->setSyncPCR(pcrpid);
 		else
- 			m_decoder->setSyncPCR(-1);
+			m_decoder->setSyncPCR(-1);
 #endif
+
 		if (m_decoder_index == 0)
 		{
 			m_decoder->setTextPID(tpid);
