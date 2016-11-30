@@ -803,6 +803,11 @@ RESULT eServiceMP3::stop()
 	return 0;
 }
 
+RESULT eServiceMP3::setTarget(int target)
+{
+	return -1;
+}
+
 RESULT eServiceMP3::pause(ePtr<iPauseableService> &ptr)
 {
 	ptr=this;
@@ -1814,7 +1819,7 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 					if(!m_cuesheet_loaded) /* cuesheet CVR */
 						loadCuesheet();
 					updateEpgCacheNowNext();
-
+					
 				}	break;
 				case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
 				{
@@ -2132,21 +2137,6 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 				if (m_errorInfo.missing_codec.find("video/") == 0 || (m_errorInfo.missing_codec.find("audio/") == 0 && m_audioStreams.empty()))
 					m_event((iPlayableService*)this, evUser+12);
 			}
-			/*+++*workaround for mp3 playback problem on some boxes - e.g. xtrend et9200 (if press stop and play or switch to the next track is the state 'playing', but plays not.
- 			Restart the player-application or paused and then play the track fix this for once.)*/
- 			if (!m_paused && m_sourceinfo.audiotype == atMP3)
- 			{
- 				//eDebug("[eServiceMP3] mp3 playback fix - set paused and then playing state");
- 				GstStateChangeReturn ret;
- 				ret = gst_element_set_state (m_gst_playbin, GST_STATE_PAUSED);
- 				if (ret != GST_STATE_CHANGE_SUCCESS)
- 				{
- 					eDebug("[eServiceMP3] mp3 playback fix - failure set paused state - sleep one second before set playing state");
- 					sleep(1);
- 				}
- 				gst_element_set_state (m_gst_playbin, GST_STATE_PLAYING);
- 			}
- 			/*+++*/
 			break;
 		}
 		case GST_MESSAGE_ELEMENT:
@@ -2330,6 +2320,8 @@ void eServiceMP3::HandleTocEntry(GstMessage *msg)
 							if (pts > 0)
 							{
 								m_cue_entries.insert(cueEntry(pts, type));
+								m_cuesheet_changed = 1;
+								m_event((iPlayableService*)this, evCuesheetChanged);
 								/* extra debug info for testing purposes CVR should_be_removed later on */
 								eLog(5, "[eServiceMP3] toc_subtype %s,Nr = %d, start= %#"G_GINT64_MODIFIER "x",
 										gst_toc_entry_type_get_nick(gst_toc_entry_get_entry_type (sub_entry)), y + 1, pts);
@@ -2337,11 +2329,6 @@ void eServiceMP3::HandleTocEntry(GstMessage *msg)
 						}
 						y++;
 					}
-				}
-				if (y > 0)
-				{
-					m_cuesheet_changed = 1;
-					m_event((iPlayableService*)this, evCuesheetChanged);
 				}
 			}
 		}
@@ -2657,10 +2644,6 @@ void eServiceMP3::pullSubtitle(GstBuffer *buffer)
 #else
 				std::string line((const char*)map.data, len);
 #endif
-				// some media muxers do add an extra new line at the end off a muxed/reencoded srt to ssa codec
-				if (!line.empty() && line[line.length()-1] == '\n')
-					line.erase(line.length()-1);
-
 				eLog(6, "[eServiceMP3] got new text subtitle @ buf_pos = %lld ns (in pts=%lld), dur=%lld: '%s' ", buf_pos, buf_pos/11111, duration_ns, line.c_str());
 
 				uint32_t start_ms = ((buf_pos / 1000000ULL) * convert_fps) + (delay / 90);
@@ -2836,42 +2819,42 @@ RESULT eServiceMP3::getCachedSubtitle(struct SubtitleTrack &track)
 		return -1;
 
 	if (m_cachedSubtitleStream == -2 && m_subtitleStreams_size)
-	{
-		m_cachedSubtitleStream = 0;
-		int autosub_level = 5;
-		std::string configvalue;
-		std::vector<std::string> autosub_languages;
-		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect1");
-		if (configvalue != "" && configvalue != "None")
-			autosub_languages.push_back(configvalue);
-		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect2");
-		if (configvalue != "" && configvalue != "None")
-			autosub_languages.push_back(configvalue);
-		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect3");
-		if (configvalue != "" && configvalue != "None")
-			autosub_languages.push_back(configvalue);
-		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect4");
-		if (configvalue != "" && configvalue != "None")
-			autosub_languages.push_back(configvalue);
-		for (int i = 0; i < m_subtitleStreams_size; i++)
-		{
-			if (!m_subtitleStreams[i].language_code.empty())
-			{
-				int x = 1;
-				for (std::vector<std::string>::iterator it2 = autosub_languages.begin(); x < autosub_level && it2 != autosub_languages.end(); x++, it2++)
-				{
-					if ((*it2).find(m_subtitleStreams[i].language_code) != std::string::npos)
-					{
-						autosub_level = x;
-						m_cachedSubtitleStream = i;
-						break;
-					}
-				}
-			}
-		}
-	}
-
-	if (m_cachedSubtitleStream >= 0 && m_cachedSubtitleStream < m_subtitleStreams_size)
+ 	{
+ 		m_cachedSubtitleStream = 0;
+ 		int autosub_level = 5;
+ 		std::string configvalue;
+ 		std::vector<std::string> autosub_languages;
+ 		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect1");
+ 		if (configvalue != "" && configvalue != "None")
+ 			autosub_languages.push_back(configvalue);
+ 		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect2");
+ 		if (configvalue != "" && configvalue != "None")
+ 			autosub_languages.push_back(configvalue);
+ 		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect3");
+ 		if (configvalue != "" && configvalue != "None")
+ 			autosub_languages.push_back(configvalue);
+ 		configvalue = eConfigManager::getConfigValue("config.autolanguage.subtitle_autoselect4");
+ 		if (configvalue != "" && configvalue != "None")
+ 			autosub_languages.push_back(configvalue);
+ 		for (int i = 0; i < m_subtitleStreams_size; i++)
+ 		{
+ 			if (!m_subtitleStreams[i].language_code.empty())
+ 			{
+ 				int x = 1;
+ 				for (std::vector<std::string>::iterator it2 = autosub_languages.begin(); x < autosub_level && it2 != autosub_languages.end(); x++, it2++)
+ 				{
+ 					if ((*it2).find(m_subtitleStreams[i].language_code) != std::string::npos)
+ 					{
+ 						autosub_level = x;
+ 						m_cachedSubtitleStream = i;
+ 						break;
+ 					}
+ 				}
+ 			}
+ 		}
+ 	}
+ 
+ 	if (m_cachedSubtitleStream >= 0 && m_cachedSubtitleStream < m_subtitleStreams_size)
 	{
 		track.type = 2;
 		track.pid = m_cachedSubtitleStream;
