@@ -1486,37 +1486,6 @@ void eEPGCache::save()
 	fseek(f, sizeof(int), SEEK_SET);
 	fwrite("ENIGMA_EPG_V7", 13, 1, f);
 	fclose(f);
-
-
-//BlackHole
-	char mybuf[256];
-	char fileOut[256];
-	FILE *fp2 = fopen ( "/etc/bhepgbackup", "r" );
-	if ( fp2 )
-	{
-	  	fgets ( mybuf, sizeof ( mybuf ), fp2 ); 
-		sprintf (fileOut, "%sepg.dat.bak", mybuf);
-		fclose(fp2); 
-
-		int c;
-  		FILE *in,*out;
-		in = fopen(m_filename, "r" );
-     		out = fopen(fileOut, "w" );
-     		if(in==NULL || !in) {
-			return;
-     		}
-     		else if(out==NULL || !out) {
-			return;
-     		}
-     		while((c=getc(in))!=EOF)
-			putc(c,out);
-
-		fclose(in);
-		fclose(out);
-	}
-
-//end
-
 }
 
 eEPGCache::channel_data::channel_data(eEPGCache *ml)
