@@ -27,15 +27,6 @@
 #include <lib/base/nconfig.h>
 #include <dvbsi++/descriptor_tag.h>
 
-//BlackHole
-#include <xmlccwrap/xmlccwrap.h>
-//BlackHole socket
-#include <sys/socket.h>
-#include <sys/un.h>
-
-//BlackHole
-void Nabilo_pop_sock(char *cmd, char *text);
-
 #define HILO(x) (x##_hi << 8 | x##_lo)
 
 /* Interval between "garbage collect" cycles */
@@ -602,14 +593,6 @@ void eEPGCache::DVBChannelRunning(iDVBChannel *chan)
 					eDebug("[eEPGCache] couldnt initialize mhw reader!!");
 					return;
 				}
-//BlackHole
-				res = demux->createSectionReader ( this, data.m_SKYReader );
-				if ( res )
-				{
-					eDebug ( "[eEPGCache] couldnt initialize sky reader!!" );
-					return;
-				}
-//end
 #endif
 #if ENABLE_FREESAT
 				res = demux->createSectionReader( this, data.m_FreeSatScheduleOtherReader );
@@ -1154,8 +1137,6 @@ void eEPGCache::gotMessage( const Message &msg )
 				m_knownChannels.find(msg.channel);
 			if ( channel != m_knownChannels.end() )
 				channel->second->abortEPG();
-// Blackhole sock	
-			Nabilo_pop_sock("popclose", "");
 			break;
 		}
 		case Message::quit:
@@ -4106,8 +4087,7 @@ void eEPGCache::channel_data::readMHWData(const uint8_t *data)
 		int record_size = sizeof( mhw_channel_name_t );
 		int nbr_records = int (len/record_size);
 
-//BlackHole
-		//m_channels.resize(nbr_records);
+		m_channels.resize(nbr_records);
 		for ( int i = 0; i < nbr_records; i++ )
 		{
 			mhw_channel_name_t *channel = (mhw_channel_name_t*) &data[4 + i*record_size];
@@ -4272,8 +4252,7 @@ void eEPGCache::channel_data::readMHWData2(const uint8_t *data)
 	// Channels table
 	{
 		int num_channels = data[120];
-//BlackHole
-//		m_channels.resize(num_channels);
+		m_channels.resize(num_channels);
 		if(dataLen > 120)
 		{
 			int ptr = 121 + 8 * num_channels;
