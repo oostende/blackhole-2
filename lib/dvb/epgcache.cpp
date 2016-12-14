@@ -27,6 +27,20 @@
 #include <lib/base/nconfig.h>
 #include <dvbsi++/descriptor_tag.h>
 
+//BlackHole
+#include <xmlccwrap/xmlccwrap.h>
+//BlackHole socket
+#include <sys/socket.h>
+#include <sys/un.h>
+
+//BlackHole
+void Nabilo_pop_sock(char *cmd, char *text);
+
+std::string langext[] = { "None", "it", "uk", "au", "sw", "no", "", "", "", ""};
+unsigned char InitialBuffer[32];
+bool OnReadBuffer;
+//End
+
 #define HILO(x) (x##_hi << 8 | x##_lo)
 
 /* Interval between "garbage collect" cycles */
@@ -81,6 +95,7 @@ unsigned int eventData::CacheSize = 0;
 bool eventData::isCacheCorrupt = 0;
 DescriptorMap eventData::descriptors;
 uint8_t eventData::data[2 * 4096 + 12];
+__u8 eventData::data[4108];
 extern const uint32_t crc32_table[256];
 
 const eServiceReference &handleGroup(const eServiceReference &ref)
@@ -593,6 +608,14 @@ void eEPGCache::DVBChannelRunning(iDVBChannel *chan)
 					eDebug("[eEPGCache] couldnt initialize mhw reader!!");
 					return;
 				}
+//BlackHole
+				res = demux->createSectionReader ( this, data.m_SKYReader );
+				if ( res )
+				{
+					eDebug ( "[eEPGCache] couldnt initialize sky reader!!" );
+					return;
+				}
+//end
 #endif
 #if ENABLE_FREESAT
 				res = demux->createSectionReader( this, data.m_FreeSatScheduleOtherReader );
@@ -1137,6 +1160,8 @@ void eEPGCache::gotMessage( const Message &msg )
 				m_knownChannels.find(msg.channel);
 			if ( channel != m_knownChannels.end() )
 				channel->second->abortEPG();
+// Blackhole sock	
+			Nabilo_pop_sock("popclose", "");
 			break;
 		}
 		case Message::quit:
@@ -1486,6 +1511,36 @@ void eEPGCache::save()
 	fseek(f, sizeof(int), SEEK_SET);
 	fwrite("ENIGMA_EPG_V7", 13, 1, f);
 	fclose(f);
+	
+//BlackHole
+	char mybuf[256];
+	char fileOut[256];
+	FILE *fp2 = fopen ( "/etc/bhepgbackup", "r" );
+	if ( fp2 )
+	{
+	  	fgets ( mybuf, sizeof ( mybuf ), fp2 ); 
+		sprintf (fileOut, "%sepg.dat.bak", mybuf);
+		fclose(fp2); 
+
+		int c;
+  		FILE *in,*out;
+		in = fopen(m_filename, "r" );
+     		out = fopen(fileOut, "w" );
+     		if(in==NULL || !in) {
+			return;
+     		}
+     		else if(out==NULL || !out) {
+			return;
+     		}
+     		while((c=getc(in))!=EOF)
+			putc(c,out);
+
+		fclose(in);
+		fclose(out);
+	}
+
+//end
+	
 }
 
 eEPGCache::channel_data::channel_data(eEPGCache *ml)
