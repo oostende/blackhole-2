@@ -13,6 +13,7 @@
 #define NO_OOPS_SUPPORT
 #endif
 
+#include "xmlgenerator.h"
 #include "version_info.h"
 
 /************************************************/
