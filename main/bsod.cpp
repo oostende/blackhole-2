@@ -114,6 +114,8 @@ void bsodFatal(const char *component)
 
 		localtime_r(&t, &tm);
 		strftime(tm_str, sizeof(tm_str), "%a %b %_d %T %Y", &tm);
+		
+		XmlGenerator xml(f);
 
 		fprintf(f,
 			"BlackHole Enigma2 crash log\n\n"
