@@ -185,7 +185,7 @@ class eEPGCache: public eMainloop, private eThread, public Object
 //end
 		std::map<uint8_t, mhw_theme_name_t> m_themes;
 		std::map<uint32_t, mhw_title_t> m_titles;
-		std::multimap<uint32_t, uintu32_t> m_program_ids;
+		std::multimap<uint32_t, uint32_t> m_program_ids;
 
 //BlackHole
 		std::map<uint32_t, mhw_title_t>::iterator itTit;
