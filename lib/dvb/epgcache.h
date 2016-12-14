@@ -193,9 +193,6 @@ class eEPGCache: public eMainloop, private eThread, public Object
 		ePtr<iDVBSectionReader> m_MHWReader, m_MHWReader2, m_SKYReader;
 		eDVBSectionFilterMask m_MHWFilterMask, m_MHWFilterMask2, m_SKYFilterMask;
 //end
-		ePtr<eConnection> m_MHWConn, m_MHWConn2;
-		ePtr<iDVBSectionReader> m_MHWReader, m_MHWReader2;
-		eDVBSectionFilterMask m_MHWFilterMask, m_MHWFilterMask2;
 		ePtr<eTimer> m_MHWTimeoutTimer;
 		uint16_t m_mhw2_channel_pid, m_mhw2_title_pid, m_mhw2_summary_pid;
 		bool m_MHWTimeoutet;
