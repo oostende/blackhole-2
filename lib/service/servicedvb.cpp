@@ -1175,6 +1175,13 @@ void eDVBServicePlay::serviceEvent(int event)
 	{
 	case eDVBServicePMTHandler::eventTuned:
 	{
+//Blackhole
+		std::string show_eit_nownext;
+		/* default behaviour is to start an eit reader, and wait for now/next info, unless this is disabled */
+		if (ePythonConfigQuery::getConfigValue("config.usage.show_eit_nownext", show_eit_nownext) < 0
+			|| show_eit_nownext != "False")
+		{
+//end
 		/* fill now/next with info from the epg cache, will be replaced by EIT when it arrives */
 		updateEpgCacheNowNext();
 
@@ -1195,7 +1202,10 @@ void eDVBServicePlay::serviceEvent(int event)
 				else
 					m_event_handler.start(m_demux, sid);
 			}
+		  }
+//BlackHole
 		}
+//end
 		m_event((iPlayableService*)this, evTunedIn);
 		break;
 	}
