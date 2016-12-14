@@ -1631,6 +1631,53 @@ void eEPGCache::channel_data::startEPG()
 		mask.mask[1] = 0;
 		m_MHWTimeoutet=false;
 	}
+//BlackHole
+	FILE *f = fopen ( "/etc/skyitepglock", "r" );
+	if ( f == NULL )
+	{
+		langvalue = 0;
+
+		//1:0:1:e30:16a8:fbff:820000:0:0:0: IT
+		//1:0:2:fd1:7d4:2:11a0000:0:0:0: UK
+		//1:0:1:4270:11:1000:6180000:0:0:0: AU
+
+		eDVBChannelID chid = channel->getChannelID();
+		unsigned short int CurNid = chid.original_network_id.get();
+		unsigned short int CurTid = chid.transport_stream_id.get();
+		unsigned short int nsp_curr = chid.dvbnamespace.get();
+
+		if ( (CurTid == 0x16a8 && CurNid == 0xfbff) )
+			langvalue = 1;
+		else if ( (CurTid == 0x7d4 && CurNid == 0x2) )
+			langvalue = 2;
+		else if ( (CurTid == 0x11 && CurNid == 0x1000) )
+			langvalue = 3;
+
+		if ( langvalue > 0 )
+		{
+			eDebug("[EPGC SKY] Valid Current: Tid %04x Nid %04x -> %x", CurTid, CurNid, nsp_curr);
+
+			OnReadBuffer = true;
+			memset ( &InitialBuffer, 0, 32 );
+
+			if ( ReadDictionary() && ReadChannelsOff() )
+			{
+				ReadThemesOff();
+
+				mask.pid = 0x30;
+				mask.data[0] = 0xA0;
+				mask.mask[0] = 0xF0;
+				m_SKYReader->connectRead ( slot ( *this, &eEPGCache::channel_data::readSKYData ), m_SKYConn );
+				m_SKYReader->start ( mask );
+				isRunning |= MHW;
+				memcpy ( &m_SKYFilterMask, &mask, sizeof ( eDVBSectionFilterMask ) );
+			}
+		}
+	}
+	else
+		fclose(f);	
+
+//end
 #endif
 #ifdef ENABLE_FREESAT
 	if (eEPGCache::getInstance()->getEpgSources() & eEPGCache::FREESAT_SCHEDULE_OTHER)
