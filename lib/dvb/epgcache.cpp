@@ -4252,7 +4252,8 @@ void eEPGCache::channel_data::readMHWData2(const uint8_t *data)
 	// Channels table
 	{
 		int num_channels = data[120];
-		m_channels.resize(num_channels);
+//BlackHole
+//		m_channels.resize(num_channels);
 		if(dataLen > 120)
 		{
 			int ptr = 121 + 8 * num_channels;
