@@ -28,12 +28,6 @@
 #include <lib/service/event.h>
 #include <lib/python/python.h>
 
-//BlackHole 
-#include <libxml/xmlreader.h>
-#define MAX_BUFFER_SIZE_TITLES 4194304
-#define MAX_BUFFER_SIZE_SUMMARIES 16777216 
-//end
-
 class eventData;
 class eServiceReferenceDVB;
 class eDVBServicePMTHandler;
@@ -179,66 +173,21 @@ class eEPGCache: public eMainloop, private eThread, public Object
 		void startPrivateReader();
 #endif
 #ifdef ENABLE_MHW_EPG
-//BlackHole
-		std::map<uint16_t, mhw_channel_name_t> m_channels;
-//		std::vector<mhw_channel_name_t> m_channels;
-//end
+		std::vector<mhw_channel_name_t> m_channels;
 		std::map<uint8_t, mhw_theme_name_t> m_themes;
 		std::map<uint32_t, mhw_title_t> m_titles;
 		std::multimap<uint32_t, uint32_t> m_program_ids;
-
-//BlackHole
-		std::map<uint32_t, mhw_title_t>::iterator itTit;
-		ePtr<eConnection> m_MHWConn, m_MHWConn2, m_SKYConn;
-		ePtr<iDVBSectionReader> m_MHWReader, m_MHWReader2, m_SKYReader;
-		eDVBSectionFilterMask m_MHWFilterMask, m_MHWFilterMask2, m_SKYFilterMask;
-//end
+		ePtr<eConnection> m_MHWConn, m_MHWConn2;
+		ePtr<iDVBSectionReader> m_MHWReader, m_MHWReader2;
+		eDVBSectionFilterMask m_MHWFilterMask, m_MHWFilterMask2;
 		ePtr<eTimer> m_MHWTimeoutTimer;
 		uint16_t m_mhw2_channel_pid, m_mhw2_title_pid, m_mhw2_summary_pid;
 		bool m_MHWTimeoutet;
 		void MHWTimeout() { m_MHWTimeoutet=true; }
 		void readMHWData(const uint8_t *data);
 		void readMHWData2(const uint8_t *data);
-//BlackHole
-
-		struct sNode
-		{
-			char *Value;
-			struct sNode *P0;
-			struct sNode *P1;
-		};
-		typedef struct sNode sNodeH;
-
-		sNodeH H;
-		sNodeH *nH;
-
-		int pT;
-		int pS;
-		int nChannels;
-		int nTitles;
-		int langvalue;
-		bool isSKY;
-
-		unsigned short int CurrentBouquetId;
-		unsigned char DecodeText[4096];
-		unsigned char DecodeErrorText[4096];
-		unsigned char SectionsBAT[255];
-
-		unsigned short int logPid;
-		unsigned short int filPid;
-
-		int DecodeHuffmanCode ( const uint8_t* Data, int Length );
-		bool ReadDictionary ( void );
-		bool ReadChannelsOff();
-		bool ReadThemesOff();
-
-		void readSKYData(const uint8_t *data);
-//end
 		void startMHWReader(uint16_t pid, uint8_t tid);
 		void startMHWReader2(uint16_t pid, uint8_t tid, int ext=-1);
-//BlackHole
-		void startSKYReader(uint16_t pid, uint8_t tid);
-//end
 		void startMHWTimeout(int msek);
 		bool checkMHWTimeout() { return m_MHWTimeoutet; }
 		void cleanupMHW();
@@ -247,11 +196,6 @@ class eEPGCache: public eMainloop, private eThread, public Object
 		void timeMHW2DVB( int minutes, u_char *return_time);
 		void timeMHW2DVB( u_char day, u_char hours, u_char minutes, u_char *return_time);
 		void storeMHWTitle(std::map<uint32_t, mhw_title_t>::iterator itTitle, std::string sumText, const uint8_t *data);
-
-//BlackHole
-		void storeTitleSKY(std::map<uint32_t, mhw_title_t>::iterator itTitle, std::string sumText, const uint8_t *data);
-		void storeTitleWeb( mhw_title_t Title, std::string sumText, const uint8_t *data);
-//end
 #endif
 		void readData(const uint8_t *data, int source);
 		void startChannel();
@@ -398,7 +342,6 @@ public:
 	PyObject *search(SWIG_PYOBJECT(ePyObject));
 	
 //BlackHole
-        SWIG_VOID(RESULT) readXmltv(SWIG_PYOBJECT(ePyObject));
         SWIG_VOID(RESULT) Nab_reset_timer();
 //end
 
